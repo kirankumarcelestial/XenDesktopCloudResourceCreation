@@ -2,10 +2,10 @@
 This Repo provides Arm Template to setup a Resource Location in Azure, which creates and configures  VDI, CloudConnector, Domain Controller and Netscaler.
 
 
-This template demonstrates the creation of a self-contained XenApp environment in Azure, creating the following resources:
+This template demonstrates the creation of a self-contained XenDesktop environment in Azure, creating the following resources:
 
 * Domain Controller
-* XenApp Desktop Delivery Controller with SQL Express, Citrix License Server, Citrix Director, Citrix Storefront
+* Desktop Delivery Controller with SQL Express, Citrix License Server, Citrix Director, Citrix Storefront
 * Citrix NetScaler
 * Citrix Virtual Desktop Agents (1 RDSH & 1 Server VDI)
 * RDP JumpBox
