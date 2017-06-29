@@ -26,7 +26,7 @@ In order for template to Work, these are the fallowing Requirements.
 	1. Make sure there are atleast 10 Core avaliable for DS_V2.
 	2. Enable Programmatic Deployment for Netscaler VPX 11.0.
 	3. Make sure the subscription is part of Azure Enterprise Agreement.
-	4. Navigate to <a href https://citrix.cloud.com/> citrix cloud </a>
+	4. Navigate to https://citrix.cloud.com/
 		a. Navigate to "Identity and Access Management"
 		b. Click "API Access"
 		c. Enter a name for Secure Client and click Create Client.
