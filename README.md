@@ -31,8 +31,9 @@ In order for template to Work, these are the fallowing Requirements.
 		b. Click "API Access"
 		c. Enter a name for Secure Client and click Create Client.
 		d. Once Secure Client is created, download Secure Client Credentials file.
-		e. Note down id      => Passed as parameter for customerId
-					 Secret  => Passed as parameter for clientSecret
+		e. Note down :
+			id		=>	Passed as parameter for customerId
+			Secret	=>	Passed as parameter for clientSecret
 
 
 Click the button below to deploy
