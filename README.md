@@ -1,23 +1,20 @@
-# XenDesktopCloudResourceCreation
-This Repo provides Arm Template to setup a Resource Location in Azure, which creates and configures  VDI, CloudConnector, Domain Controller and Netscaler.
-
+# Citrix Cloud Xendesktop Resource Location Creation Arm Template
 
 This template demonstrates the creation of a self-contained XenDesktop environment in Azure, creating the following resources:
 
 * Domain Controller
-* Desktop Delivery Controller with SQL Express, Citrix License Server, Citrix Director, Citrix Storefront
-* Citrix NetScaler
-* Citrix Virtual Desktop Agents (1 RDSH & 1 Server VDI)
+* Citrix NetScaler VPX 11.0
+* Citrix Virtual Desktop Agents (1 Client Windows 10 VDI)
+* Citrix CloudConnector
 * RDP JumpBox
 
-After deployment, the components are fully configured and a simple XenApp site is created in a number of steps:
+After deployment, fallowing components are fully configured with Citrix Cloud customer XenDesktop instance:
 
 1. A new user-specified Active Directory domain is created and the machines are automatically joined to it.
-2. A SQL server database is configured and a site is created on the XenApp Delivery Controller.
-3. VDAs are provisioned and joined to the new site.
-4. A StoreFront site is created, providing access to published Apps & Desktops.
+2. A Citrix CloudConnector VM is created and Joined to https://citrix.cloud.com specfied Customer Account
+3. VDAs are provisioned and joined to Citrix XenDesktop Infrastructure running in Citrix Cloud.
 5. A certificate is obtained for the deployment from the letsencrypt certificate authority.
-6. NetScaler is configured as a gateway to the deployment.
+6. NetScaler VPX is configured as a gateway to the deployment.
 
 # Pre-Requisites
 
@@ -27,13 +24,16 @@ In order for template to Work, these are the fallowing Requirements.
 	2. Enable Programmatic Deployment for Netscaler VPX 11.0.
 	3. Make sure the subscription is part of Azure Enterprise Agreement.
 	4. Navigate to https://citrix.cloud.com/
-		a. Navigate to "Identity and Access Management"
-		b. Click "API Access"
+		a. Navigate to "Identity and Access Management".
+		b. Click "API Access".
 		c. Enter a name for Secure Client and click Create Client.
 		d. Once Secure Client is created, download Secure Client Credentials file.
 		e. Note down :
-			id		=>	Passed as parameter for customerId
-			Secret	=>	Passed as parameter for clientSecret
+			id		=>	Passed as parameter for customerId.
+			Secret	=>	Passed as parameter for clientSecret.
+	5. Login to https://www.Citrix.com
+		Download latest RTM version of Standalone Client VDI Installer.
+		Upload it to a share that can be accessed by Azure Resource Manager Template.
 
 
 Click the button below to deploy
