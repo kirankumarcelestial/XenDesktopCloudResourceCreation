@@ -354,7 +354,7 @@
       "metadata": {
         "description": "Select if Default Server VDI should be installed or any custom version of VDI needs to be installed."
       },
-      "defaultValue": "true",
+      "defaultValue": "false",
       "allowedValues": [
         "true",
         "false"
