@@ -1,32 +1,41 @@
-# Citrix XenApp Site Deployment Sample
+# Citrix Cloud Xendesktop Resource Location Creation Arm Template
 
-This template demonstrates the creation of a self-contained XenApp environment in Azure, creating the following resources:
+This template demonstrates the creation of a self-contained XenDesktop environment in Azure, creating the following resources:
 
 * Domain Controller
-* XenApp Desktop Delivery Controller with SQL Express, Citrix License Server, Citrix Director, Citrix Storefront
-* Citrix NetScaler
-* Citrix Virtual Desktop Agents (1 RDSH & 1 Server VDI)
+* Citrix NetScaler VPX 11.0
+* Citrix Virtual Desktop Agents (1 Client Windows 10 VDI)
+* Citrix CloudConnector
 * RDP JumpBox
 
-After deployment, the components are fully configured and a simple XenApp site is created in a number of steps:
+After deployment, fallowing components are fully configured with Citrix Cloud customer XenDesktop instance:
 
 1. A new user-specified Active Directory domain is created and the machines are automatically joined to it.
-2. A SQL server database is configured and a site is created on the XenApp Delivery Controller.
-3. VDAs are provisioned and joined to the new site.
-4. A StoreFront site is created, providing access to published Apps & Desktops.
+2. A Citrix CloudConnector VM is created and Joined to specified Customer Account from https://citrix.cloud.com.
+3. VDAs are provisioned and joined to Citrix XenDesktop Infrastructure running in Citrix Cloud.
 5. A certificate is obtained for the deployment from the letsencrypt certificate authority.
-6. NetScaler is configured as a gateway to the deployment.
+6. NetScaler VPX is configured as a gateway to the deployment.
 
 # Pre-Requisites
- 
-These templates make use of hidden Virtual Machine images which have the above XenApp components fully installed. 
 
-| Image   | Description    |
-|:--- |:---|
-XD-ALL.vhd | XenApp 7.7 Server with StoreFront, Director, Controller & License Server.
-XD-VDA.vhd | XenApp 7.7 VDA (RDS) Installation
-XD-VDI.vhd | XenApp 7.7 VDA (VDI) Installation
- 
+In order for template to Work, these are the fallowing Requirements.
+
+	1. Make sure there are at least 10 Core available for DS_V2.
+	2. Enable Programmatic Deployment for NetScaler VPX 11.0.
+	3. Make sure the subscription is part of Azure Enterprise Agreement.
+	4. Navigate to https://citrix.cloud.com/
+		a. Navigate to "Identity and Access Management".
+		b. Click "API Access".
+		c. Enter a name for Secure Client and click Create Client.
+		d. Once Secure Client is created, download Secure Client Credentials file.
+		e. Note down :
+			id		=>	Passed as parameter for customerId.
+			Secret	=>	Passed as parameter for clientSecret.
+	5. Login to https://www.Citrix.com
+		Download latest RTM version of Standalone Client VDI Installer.
+		Upload it to a share that can be accessed by Azure Resource Manager Template.
+
+
 Click the button below to deploy
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fkkuenterprisestorage.blob.core.windows.net%2Fcctest18-stageartifacts%2FmainTemplate.json" target="_blank">
@@ -52,7 +61,7 @@ Template parameters:
 | adminUsername | Specifies the name of the administrator for machines, Active Directory domain, NetScaler and XenApp. Exclusion list: 'admin','administrator'. Must be no more than 9 alphanumeric characters. | 
 | adminPassword | Specifies the password of the administrator for machines, Active Directory domain, NetScaler and XenApp. | 
 | domainName | Specifies the name of the newly created Active Directory domain. | 
-| siteName | Specifies the name of the XenApp site. | 
+| siteName | Specifies the name of the XenDesktop Site Name. | 
 | html5Mode | Specifies whether HTML5 Reciever is to be used. | 
 | emailAddress | Specifies the email address that that will be used to request a public SSL certificate for NetScaler gateway from letsencrypt.org on your behalf. This will also be used to notify you when the template has deployed successfully. | 
 | acmeServer | Specifies the ACME protocol server used for public TLS certificate requests. Allowed values correspond to letsencrypt.org staging or production. | 
@@ -60,4 +69,18 @@ Template parameters:
 | customApplications | Specifies additional applications to be installed on the VDA and published through XenApp. The parameter is specified as an array of objects, as in the default. See variables 'applications', 'vdaSettings', and 'storeFrontSettings' for an example format.  | 
 | artifactsBaseUrl | Specifies the base location of the child templates and desired state configuration scripts. | 
 | artifactsBaseUrlSasToken | Specifies the shared access signature token which provides access to the base artifacts location. | 
-
+| Azure Gov | Specify True if the deployment is for Azure Gov, otherwise false. |
+| XA Controller Deploy Type | For Citrix Cloud Provisioning select CloudConnectorSettings, otherwise delivery Controller Settings.|
+| Customer | This is the customer ID available in the Citrix Cloud console on the API Access page (within Identity and Access Management). |
+| clientID | Found on the API Access page. This is the secure client ID an administrator can create.|
+| clientSecret | Found on the API Access page. This is the secure client secret available via download after a secure client is created. |
+| ResourceLocationId | Specify a Name for a resourcelocation to be created on Citrix Cloud. |
+| DeploymentType | XenDesktop for Xendesktop Deployment, or XenApp for XenApp Deployment. |
+| UseTestControlPlane | Default False, and Always set it to false. |
+| CreateMasterImage | Specify if you want the VDI to be created as master Image, Note: If this option is specified the VDI are not provisioned to DDC. |
+| CustomCloudConnectorScriptUri | If you want to run any custom configuration on cloudConnector, specify the URL for the powershellScript. else leave it empty. |
+| CustomCloudConnectorScriptArgs | Arguments for Script, else leave it blank.|
+| CreateClientVDI | Creates a Windows 10 Hub Image, if your subscription is not part of Azure Enterprise Agreement, set it to false.|
+| ClientVDIInstallerUri | Url for the Standalone Client VDI Installer, which can be download from https://www.citrix.com website. |
+| CreateSharedHostedVDI | If True, creates a Windows Server 2016 Shared Hosted VDI. |
+| SharedHostedVDIInstallerUri | The Standalone Installer for the Xendesktop VDI, which can be downloaded from https://www.citrix.com.|
