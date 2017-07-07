@@ -2,17 +2,7 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
 
-  "parameters": {
-
-    // Storage
-    "vhdStorageAccount": {
-      "type": "string",
-      "defaultValue": "[toLower(substring(concat('xenapp',uniqueString(subscription().subscriptionId,resourceGroup().id)), 0, 13))]",
-      "metadata": {
-        "description": "Specifies the name of the storage account used for virtual machine disks. This has to be a unique name, up to 24 chars, all lowercase."
-      }
-    },
-
+  "parameters": {    
     "vhdStorageType": {
       "type": "string",
       "defaultValue": "Standard_LRS",
@@ -26,15 +16,7 @@
         "description": "Specifies the type of storage account, if being created."
       }
     },
-
-    "vhdStorageGroup": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().name]",
-      "metadata": {
-        "description": "Specifies the resource group which should contain the storage account."
-      }
-    },
-
+    
     "vhdStorageNewOrExisting": {
       "type": "string",
       "defaultValue": "new",
@@ -73,18 +55,6 @@
       "allowedValues": [
         "",
         "-preview"
-      ],
-      "metadata": {
-        "description": "Specifies an additional qualifier to use for Marketplace image references. The value 'preview' is for images in staging, while the default value references production images."
-      }
-    },
-
-    "vdaVersion": {
-      "type": "string",
-      "defaultValue": "coldfire",
-      "allowedValues": [
-        "coldfire",
-        "server2016"
       ],
       "metadata": {
         "description": "Specifies an additional qualifier to use for Marketplace image references. The value 'preview' is for images in staging, while the default value references production images."
@@ -136,15 +106,7 @@
         "description": "Specifies the size of the virtual machines (6)."
       }
     },
-
-    "location": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Specifies the Location for the deployment."
-      }
-    },
-
+  
     // Credentials and domain
     "adminUsername": {
       "type": "string",
@@ -168,29 +130,7 @@
         "description": "Specifies the name of the newly created Active Directory domain."
       }
     },
-
-    // XenApp settings
-    "siteName": {
-      "type": "string",
-      "defaultValue": "XenAppOnAzure",
-      "metadata": {
-        "description": "Specifies the name of the XenApp site."
-      }
-    },
-
-    "html5Mode": {
-      "type": "string",
-      "defaultValue": "Fallback",
-      "allowedValues": [
-        "Always",
-        "Fallback",
-        "Off"
-      ],
-      "metadata": {
-        "description": "Specifies whether HTML5 Reciever is to be used."
-      }
-    },
-
+    
     "emailAddress": {
       "type": "string",
       "defaultValue": "",
@@ -402,8 +342,7 @@
       ]
     },
 
-    "ClientVDIInstallerUri": {
-      "defaultValue": "[concat(parameters('artifactsBaseUrl'), '/Resources/VDISetup/VDAWorkstationSetup_7.9.exe')]",
+    "ClientVDIInstallerUri": {      
       "type": "string",
       "metadata": {
         "description": "If customClientVDI is selected, Enter the path of VDI Installer or else leave it blank."
@@ -423,7 +362,6 @@
     },
 
     "SharedHostedVDIInstallerUri": {
-      "defaultValue": "[concat(parameters('artifactsBaseUrl'), '/Resources/VDISetup/VDAServerSetup_7.9.exe')]",
       "type": "string",
       "metadata": {
         "description": "If customServerVDI is selected, Enter the path of VDI Installer or else leave it blank."
@@ -432,16 +370,22 @@
   },
     
   "variables": {	  
+  
+		"siteName":"XenAppOnAzure",      
+		"html5Mode": "Fallback",    	
+	  "vhdStorageAccount":"[toLower(substring(concat('xenapp',uniqueString(subscription().subscriptionId,resourceGroup().id)), 0, 13))]",    	
+	  "vhdStorageGroup":  "[resourceGroup().name]",     	
+	  "location": "[resourceGroup().location]",	  
       "artifactsLocation": "[concat(parameters('artifactsBaseUrl'),'/')]",
       "artifactsLocationSasToken": "[parameters('artifactsBaseUrlSasToken')]",
-      "deploymentFQDNPublicCloudtrue": "[concat(parameters('publicDnsName'), '.', parameters('location'), '.cloudapp.azure.com')]",
-      "deploymentFQDNPublicCloudfalse": "[concat(parameters('publicDnsName'), '.', parameters('location'), '.cloudapp.usgovcloudapi.net')]",
+      "deploymentFQDNPublicCloudtrue": "[concat(parameters('publicDnsName'), '.', variables('location'), '.cloudapp.azure.com')]",
+      "deploymentFQDNPublicCloudfalse": "[concat(parameters('publicDnsName'), '.', variables('location'), '.cloudapp.usgovcloudapi.net')]",
       "deployFQDN": {
         "true": {
-          "deploymentFQDN": "[concat(parameters('publicDnsName'), '.', parameters('location'), '.cloudapp.usgovcloudapi.net')]"
+          "deploymentFQDN": "[concat(parameters('publicDnsName'), '.', variables('location'), '.cloudapp.usgovcloudapi.net')]"
         },
         "false": {
-          "deploymentFQDN": "[concat(parameters('publicDnsName'), '.', parameters('location'), '.cloudapp.azure.com')]"
+          "deploymentFQDN": "[concat(parameters('publicDnsName'), '.', variables('location'), '.cloudapp.azure.com')]"
         }
       },
 	  
@@ -456,7 +400,7 @@
 		  "machineName": "XD-Controller",
 		  "fqdn": "[concat('XD-Controller', '.', parameters('domainName'))]",
 		  "machineSize": "[parameters('machineSize')]",
-		  "location": "[parameters('location')]",
+		  "location": "[variables('location')]",
 		  "privateIp": "10.0.0.9",
 		  "configurationFileUrl": "[concat(variables('artifactsLocation'), 'DSC/DeliveryController.ps1.zip')]",
 		  "configurationFunction": "DeliveryController.ps1\\DeliveryController",
@@ -477,7 +421,7 @@
 		  "OSDiskName": "CloudConnectorOSDisk",
 		  "fqdn": "[concat('cloudConnector', '.', parameters('domainName'))]",
 		  "machineSize": "[parameters('machineSize')]",		  
-		  "location": "[parameters('location')]",
+		  "location": "[variables('location')]",
 		  "privateIp": "10.0.0.7",
 		  "customerId": "[parameters('Customer')]",
 		  "clientId": "[parameters('clientID')]",
@@ -497,10 +441,10 @@
       "currentDeployFQDN": "[variables('deployFQDN')[parameters('azureGov')]]",
 	  
       "deploymentFQDN": "[variables('currentDeployFQDN').deploymentFQDN]",
-      "gatewayFQDN": "[concat(parameters('publicDnsName'), '-', parameters('location'), '.xenapponazure.com')]",
+      "gatewayFQDN": "[concat(parameters('publicDnsName'), '-', variables('location'), '.xenapponazure.com')]",
 
       "userImageContainerName": "[parameters('userImageContainerName')]",
-      "userImageLocation": "[concat('http://', parameters('vhdStorageAccount'), '.blob.core.windows.net/', variables('userImageContainerName'), '/')]",
+      "userImageLocation": "[concat('http://', variables('vhdStorageAccount'), '.blob.core.windows.net/', variables('userImageContainerName'), '/')]",
 
       "dscVersion": "2.19",
 
@@ -553,7 +497,7 @@
         "sku": "2012-R2-Datacenter",
         "machineName": "XD-JumpBox",
         "machineSize": "[parameters('machineSize')]",
-        "location": "[parameters('location')]",
+        "location": "[variables('location')]",
         "configurationFileUrl": "[concat(variables('artifactsLocation'), 'DSC/JumpBox.ps1.zip')]",
         "configurationFunction": "JumpBox.ps1\\JumpBox",
         "inboundRules": [
@@ -576,7 +520,7 @@
         "machineName": "XD-DC",
         "fqdn": "[concat('XD-DC', '.', parameters('domainName'))]",
         "machineSize": "[parameters('machineSize')]",
-        "location": "[parameters('location')]",
+        "location": "[variables('location')]",
         "privateIp": "10.0.0.8",
         "configurationFileUrl": "[concat(variables('artifactsLocation'), 'DSC/DomainController.ps1.zip')]",
         "configurationFunction": "DomainController.ps1\\DomainController",
@@ -602,7 +546,7 @@
         "httpPort": "[variables('ports').http]",
         "gatewayName": "NetScaler",
         "themeUri": "[concat(variables('artifactsLocation'), 'Resources/receivertheme.tar.gz')]",
-        "html5Mode": "[parameters('html5Mode')]",
+        "html5Mode": "[variables('html5Mode')]",
         "appGroups": [
           {
             "title": "Administrative Apps",
@@ -643,7 +587,7 @@
         "httpsPort": "[variables('ports').netScalerHttps]",
         "httpPort": "[variables('ports').netScalerHttp]",
         "machineName": "XD-NetScaler",
-        "location": "[parameters('location')]",
+        "location": "[variables('location')]",
         "fqdn": "[concat('XD-NetScaler', '.', parameters('domainName'))]",
         "machineSize": "[parameters('machineSize')]",
         "privateIp": "10.0.0.11",
@@ -718,7 +662,7 @@
         "vdiPrefix": "XD-VDIServer",
         "machineSize": "[parameters('machineSize')]",
 		"machineName": "XD-VDIServer",
-        "location": "[parameters('location')]",
+        "location": "[variables('location')]",
         "vdaCount": 1,
         "privateIp": "10.0.0.16",        
 		"configurationFileUrl": "[concat(variables('artifactsLocation'), 'DSC/VDIServer.ps1.zip')]",
@@ -739,7 +683,7 @@
         "vdiPrefix": "XD-VDI",
         "machineSize": "[parameters('machineSize')]",
 		"machineName": "XD-VDI",
-        "location": "[parameters('location')]",
+        "location": "[variables('location')]",
         "vdaCount": 1,
         "privateIp": "10.0.0.15",        
 		"configurationFileUrl": "[concat(variables('artifactsLocation'), 'DSC/VDI.ps1.zip')]",
@@ -757,7 +701,7 @@
       "apiVersion": "2015-06-15",
       "name": "[variables('availabilitySetName')]",
       "type": "Microsoft.Compute/availabilitySets",
-      "location": "[parameters('location')]",
+      "location": "[variables('location')]",
       "dependsOn": [ ],
       "tags": {
         "displayName": "AvailabilitySet"
@@ -771,7 +715,7 @@
       "apiVersion": "2015-06-15",
       "name": "[variables('vnetName')]",
       "type": "Microsoft.Network/virtualNetworks",
-      "location": "[parameters('location')]",
+      "location": "[variables('location')]",
       "tags": {
         "displayName": "VirtualNetwork"
       },
@@ -803,7 +747,7 @@
         },
         "parameters": {
           "location": {
-            "value": "[parameters('location')]"
+            "value": "[variables('location')]"
           },
           "publicDnsName": {
             "value": "[parameters('publicDnsName')]"
@@ -831,16 +775,16 @@
         },
         "parameters": {
           "location": {
-            "value": "[parameters('location')]"
+            "value": "[variables('location')]"
           },
           "vhdStorageAccount": {
-            "value": "[parameters('vhdStorageAccount')]"
+            "value": "[variables('vhdStorageAccount')]"
           },
           "vhdStorageType": {
             "value": "[parameters('vhdStorageType')]"
           },
           "vhdStorageGroup": {
-            "value": "[parameters('vhdStorageGroup')]"
+            "value": "[variables('vhdStorageGroup')]"
           }
         }
       }
@@ -866,7 +810,7 @@
             "value": "[parameters('publicIpName')]"
           },
           "location": {
-            "value": "[parameters('location')]"
+            "value": "[variables('location')]"
           },
           "publicIpGroup": {
             "value": "[parameters('publicIpGroup')]"
@@ -911,7 +855,7 @@
             "value": "[variables('dnsServers')]"
           },
           "location": {
-            "value": "[parameters('location')]"
+            "value": "[variables('location')]"
           }
         }
       }
@@ -937,7 +881,7 @@
         },
         "parameters": {
           "vhdStorageAccount": {
-            "value": "[parameters('vhdStorageAccount')]"
+            "value": "[variables('vhdStorageAccount')]"
           },
           "machineSize": {
             "value": "[variables('jumpBoxSettings').machineSize]"
@@ -976,7 +920,7 @@
             "value": "[parameters('adminPassword')]"
           },
           "location": {
-            "value": "[parameters('location')]"
+            "value": "[variables('location')]"
           },
           "shortcuts": {
             "value": "[variables('jumpBoxSettings').shortcuts]"
@@ -1057,7 +1001,7 @@
         },
         "parameters": {
           "vhdStorageAccount": {
-            "value": "[parameters('vhdStorageAccount')]"
+            "value": "[variables('vhdStorageAccount')]"
           },
           "publisher": {
             "value": "[variables('domainControllerSettings').publisher]"
@@ -1099,7 +1043,7 @@
             "value": "[parameters('adminPassword')]"
           },
           "location": {
-            "value": "[parameters('location')]"
+            "value": "[variables('location')]"
           },
           "artifactsLocationUri": {
             "value": "[variables('artifactsLocation')]"
@@ -1141,7 +1085,7 @@
         },
         "parameters": {
           "vhdStorageAccount": {
-            "value": "[parameters('vhdStorageAccount')]"
+            "value": "[variables('vhdStorageAccount')]"
           },
           "machineSize": {
             "value": "[variables('netScalerSettings').machineSize]"
@@ -1183,7 +1127,7 @@
             "value": "[parameters('adminUsername')]"
           },
           "location": {
-            "value": "[parameters('location')]"
+            "value": "[variables('location')]"
           },
           "adminPassword": {
             "value": "[parameters('adminPassword')]"
@@ -1215,7 +1159,7 @@
 
           // Infrastructure
           "vhdStorageAccount": {
-            "value": "[parameters('vhdStorageAccount')]"
+            "value": "[variables('vhdStorageAccount')]"
           },
           "imageUri": {
             "value": "[variables('XAControllerSetting').userImageUri]"
@@ -1271,7 +1215,7 @@
             "value": "[variables('domainControllerSettings').privateIp]"
           },
           "location": {
-            "value": "[parameters('location')]"
+            "value": "[variables('location')]"
           },
 
           // Delegated servers
@@ -1334,7 +1278,7 @@
             "value": "[concat(variables('XAControllerSetting').fqdn)]"
           },
           "siteName": {
-            "value": "[parameters('siteName')]"
+            "value": "[variables('siteName')]"
           },
 
           // Configuration
@@ -1388,7 +1332,7 @@
 
           // Infrastructure
           "vhdStorageAccount": {
-            "value": "[parameters('vhdStorageAccount')]"
+            "value": "[variables('vhdStorageAccount')]"
           },
           "imageUri": {
             "value": "[variables('XAControllerSetting').userImageUri]"
@@ -1444,7 +1388,7 @@
             "value": "[variables('domainControllerSettings').privateIp]"
           },
           "location": {
-            "value": "[parameters('location')]"
+            "value": "[variables('location')]"
           },
 
           // Delegated servers
@@ -1507,7 +1451,7 @@
             "value": "[concat(variables('XAControllerSetting').fqdn)]"
           },
           "siteName": {
-            "value": "[parameters('siteName')]"
+            "value": "[variables('siteName')]"
           },
 
           // Configuration
@@ -1570,7 +1514,7 @@
         },
         "parameters": {
           "vhdStorageAccount": {
-            "value": "[parameters('vhdStorageAccount')]"
+            "value": "[variables('vhdStorageAccount')]"
           },
           "machineSize": {
             "value": "[variables('vdiSettings').machineSize]"
@@ -1600,7 +1544,7 @@
             "value": "[parameters('adminPassword')]"
           },
           "location": {
-            "value": "[parameters('location')]"
+            "value": "[variables('location')]"
           },
           "artifactsLocationUri": {
             "value": "[variables('artifactsLocation')]"
@@ -1659,7 +1603,7 @@
         },
         "parameters": {          
           "location": {
-            "value": "[parameters('location')]"
+            "value": "[variables('location')]"
           },
           "machineName": {
             "value": "[variables('vdiSettings').vdiPrefix]"
@@ -1713,7 +1657,7 @@
         },
         "parameters": {
           "vhdStorageAccount": {
-            "value": "[parameters('vhdStorageAccount')]"
+            "value": "[variables('vhdStorageAccount')]"
           },
           "machineSize": {
             "value": "[variables('vdiServerSettings').machineSize]"
@@ -1743,7 +1687,7 @@
             "value": "[parameters('adminPassword')]"
           },
           "location": {
-            "value": "[parameters('location')]"
+            "value": "[variables('location')]"
           },
           "artifactsLocationUri": {
             "value": "[variables('artifactsLocation')]"
@@ -1812,7 +1756,7 @@
         },
         "parameters": {
           "location": {
-            "value": "[parameters('location')]"
+            "value": "[variables('location')]"
           },
           "machineName": {
             "value": "[variables('vdiServerSettings').vdiPrefix]"
@@ -1918,7 +1862,7 @@
             "value": "[concat(variables('XAControllerSetting').inboundRulesFinal, parameters('customInboundRules').assignments.deliveryController)]"
           },
           "location": {
-            "value": "[parameters('location')]"
+            "value": "[variables('location')]"
           }
         }
       }
@@ -1954,7 +1898,7 @@
             "value": "[concat(variables('netScalerSettings').inboundRulesFinal, parameters('customInboundRules').assignments.netScaler)]"
           },
           "location": {
-            "value": "[parameters('location')]"
+            "value": "[variables('location')]"
           }
         }
       }
